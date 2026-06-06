@@ -9,8 +9,8 @@
       font-family: system-ui;
       max-width: 420px;
       margin: 0 auto;
-      background: #f7f8fa;
       padding: 20px;
+      background: #f7f8fa;
     }
 
     .card {
@@ -27,19 +27,73 @@
       background: #007AFF;
       color: white;
     }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 1px solid #eee;
+    }
   </style>
 </head>
+
 <body>
 
-<h2>🧺 Today - Laundry</h2>
+<h2>🧺 Today</h2>
 
-<div class="card">
-  🧥 Blue Hoodie<br>
-  <small>Worn 3 times</small><br>
-  <button onclick="alert('Washed!')">Washed</button>
+<div id="list"></div>
+
+<button onclick="addCloth()">+ Add Cloth</button>
+
+<div class="nav">
+  <a href="today.html">Today</a>
+  <a href="wardrobe.html">Wardrobe</a>
+  <a href="settings.html">Settings</a>
 </div>
 
-<a href="index.html">← Back</a>
+<script>
+let clothes = JSON.parse(localStorage.getItem("clothes")) || [
+  { name: "Blue Hoodie", count: 3 },
+  { name: "White Tee", count: 2 }
+];
+
+function render() {
+  let html = "";
+
+  clothes.forEach((c, i) => {
+    html += `
+      <div class="card">
+        <b>${c.name}</b><br>
+        Worn ${c.count} times<br><br>
+        <button onclick="wash(${i})">Washed</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("list").innerHTML = html;
+  localStorage.setItem("clothes", JSON.stringify(clothes));
+}
+
+function wash(i) {
+  clothes[i].count = 0;
+  render();
+}
+
+function addCloth() {
+  let name = prompt("Cloth name?");
+  if (name) {
+    clothes.push({ name, count: 0 });
+    render();
+  }
+}
+
+render();
+</script>
 
 </body>
 </html>
