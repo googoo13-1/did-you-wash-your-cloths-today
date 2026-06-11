@@ -116,14 +116,16 @@ function render(){
 function addCloth(){
 
   const name = prompt("Cloth name");
-
   if(!name) return;
 
+  const limit = prompt("Wash limit (e.g. 3, 5, 10)");
+
   clothes.push({
-    name:name,
-    count:0,
-    limit:3,
-    status: "clean"
+    name: name,
+    count: 0,
+    limit: Number(limit) || 3,
+    status: "clean",
+    type: "normal"
   });
 
   render();
