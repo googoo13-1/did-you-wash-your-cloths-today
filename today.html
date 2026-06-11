@@ -111,13 +111,17 @@ function addCloth(){
 
  if(!name) return;
 
- clothes.push({
+clothes.push({
    name:name,
-   count:0
- });
+   count:0,
+   limit:3
+});
 
  render();
-
+${item.count >= item.limit
+ ? '<br><span style="color:red">🧼 Time to Wash</span>'
+ : ''
+}
 }
 
 function wear(index){
