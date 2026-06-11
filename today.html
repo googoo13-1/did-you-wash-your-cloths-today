@@ -14,17 +14,11 @@
       background: #f7f8fa;
     }
 
-    .nav a{
-      text-decoration:none;
-      color:#333;
-      font-weight:600;
-    }
-
     .card {
       background: white;
       padding: 15px;
       border-radius: 12px;
-      margin-bottom: 10px;
+      margin-top: 10px;
     }
 
     button {
@@ -47,6 +41,12 @@
       padding: 10px;
       border-top: 1px solid #eee;
     }
+
+    .nav a{
+      text-decoration:none;
+      color:#333;
+      font-weight:600;
+    }
   </style>
 </head>
 
@@ -54,104 +54,117 @@
 
 <h2>🧺 Today</h2>
 
-<button onclick="addCloth()">
-+ Add Clothes
-</button>
+<button onclick="addCloth()">+ Add Clothes</button>
 
 <div id="list"></div>
+
+<h3>Today Log</h3>
+<div id="log"></div>
 
 <script>
 
 let clothes =
 JSON.parse(localStorage.getItem("clothes")) || [];
 
+let stateLogs =
+JSON.parse(localStorage.getItem("logs")) || {};
+
 function save(){
- localStorage.setItem(
-   "clothes",
-   JSON.stringify(clothes)
- );
+  localStorage.setItem("clothes", JSON.stringify(clothes));
+  localStorage.setItem("logs", JSON.stringify(stateLogs));
 }
 
 function render(){
 
- let html="";
+  let html = "";
 
- clothes.forEach((item,index)=>{
+  clothes.forEach((item, index) => {
 
-   html += `
-   <div style="
-     background:white;
-     padding:15px;
-     margin-top:10px;
-     border-radius:10px;
-   ">
+    html += `
+      <div class="card">
 
-<b>${item.name}</b>
-${item.status === "needs wash" ? " 🧼" : ""}
+        <b>${item.name}</b>
+        ${item.status === "needs wash" ? " 🧼" : ""}
 
-<br>
+        <br>
 
-Worn ${item.count} / ${item.limit} times
+        Worn ${item.count} / ${item.limit} times
 
-${
- item.count >= item.limit
- ? '<br><span style="color:red;font-weight:bold;">🧼 Time to Wash</span>'
- : ''
-}
+        ${
+          item.count >= item.limit
+          ? '<br><span style="color:red;font-weight:bold;">🧼 Time to Wash</span>'
+          : ''
+        }
 
-<br><br>
+        <br><br>
 
-   <button onclick="wear(${index})">
-     Wear +1
-   </button>
+        <button onclick="wear(${index})">Wear +1</button>
 
-   <button onclick="wash(${index})">
-     Washed
-   </button>
+        <button onclick="wash(${index})">Washed</button>
 
-   </div>
-   `;
- });
+      </div>
+    `;
+  });
 
- document.getElementById("list").innerHTML = html;
+  document.getElementById("list").innerHTML = html;
 
- save();
+  save();
+
+  renderLog();
 }
 
 function addCloth(){
 
- const name = prompt("Cloth name");
+  const name = prompt("Cloth name");
 
- if(!name) return;
+  if(!name) return;
 
- clothes.push({
-   name:name,
-   count:0,
-   limit:3,
-   status: "clean"
- });
+  clothes.push({
+    name:name,
+    count:0,
+    limit:3,
+    status: "clean"
+  });
 
- render();
+  render();
 }
 
 function wear(index){
 
- clothes[index].count++;
+  clothes[index].count++;
 
- // ⭐ NEW LOGIC
- if (clothes[index].count >= clothes[index].limit) {
-   clothes[index].status = "needs wash";
- }
+  if (clothes[index].count >= clothes[index].limit) {
+    clothes[index].status = "needs wash";
+  }
 
- render();
+  // ⭐ LOG SYSTEM
+  let today = new Date().toISOString().split("T")[0];
+
+  if (!stateLogs[today]) {
+    stateLogs[today] = [];
+  }
+
+  stateLogs[today].push(clothes[index].name);
+
+  render();
 }
 
 function wash(index){
 
- clothes[index].count = 0;
- clothes[index].status = "clean";
+  clothes[index].count = 0;
+  clothes[index].status = "clean";
 
- render();
+  render();
+}
+
+function renderLog(){
+
+  let today = new Date().toISOString().split("T")[0];
+
+  let list = stateLogs[today] || [];
+
+  document.getElementById("log").innerHTML =
+    list.map(item => `<div>👕 ${item}</div>`).join("");
 }
 
 render();
