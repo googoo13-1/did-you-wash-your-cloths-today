@@ -78,11 +78,16 @@ function render(){
    border-radius:10px;
    ">
 
-   <b>${item.name}</b><br>
+<b>${item.name}</b><br>
 
-   Worn ${item.count} times
+Worn ${item.count} / ${item.limit} times
 
-   <br><br>
+${item.count >= item.limit
+ ? '<br><span style="color:red;font-weight:bold;">🧼 Time to Wash</span>'
+ : ''
+}
+
+<br><br>
 
    <button onclick="wear(${index})">
    Wear +1
