@@ -1,73 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Today</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today</title>
 
-  <style>
-    body {
-      font-family: system-ui;
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f7f8fa;
-    }
+<style>
 
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
+body{
+  font-family: system-ui;
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+  background: #f6f7fb;
+}
 
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      background: #007AFF;
-      color: white;
-      margin-right: 5px;
-    }
+/* ===== header ===== */
+h2{
+  margin-bottom: 10px;
+}
 
-    .nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px;
-      border-top: 1px solid #eee;
-    }
+/* ===== buttons ===== */
+button{
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #007AFF;
+  color: white;
+  font-weight: 500;
+}
 
-    .nav a{
-      text-decoration:none;
-      color:#333;
-      font-weight:600;
-    }
+button:active{
+  transform: scale(0.98);
+}
 
-    img{
-      width:100%;
-      border-radius:10px;
-      margin-bottom:8px;
-    }
-  </style>
+/* ===== card ===== */
+.card{
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ===== image ===== */
+img{
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+/* ===== log card ===== */
+.log-card{
+  background: white;
+  padding: 12px;
+  border-radius: 14px;
+  margin-top: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  cursor: pointer;
+}
+
+/* ===== nav ===== */
+.nav{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.nav a{
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.small{
+  font-size: 12px;
+  color: #666;
+}
+
+</style>
 </head>
 
 <body>
 
 <h2>🧺 Today</h2>
 
-<!-- 📸 图片上传 -->
-<input type="file" accept="image/*" id="photoInput">
-
 <button onclick="addCloth()">+ Add Clothes</button>
 
 <div id="list"></div>
 
-<h3>Today Log</h3>
+<h3>📅 Activity Log</h3>
 <div id="log"></div>
 
 <script>
@@ -86,6 +115,7 @@ function save(){
   localStorage.setItem("logs", JSON.stringify(stateLogs));
 }
 
+/* ===== render clothes ===== */
 function render(){
 
   let html = "";
@@ -98,23 +128,23 @@ function render(){
         ${item.image ? `<img src="${item.image}">` : ""}
 
         <b>${item.name}</b>
+
         ${item.status === "needs wash" ? " 🧼" : ""}
 
-        <br>
-
-        Worn ${item.count} / ${item.limit} times
+        <div class="small">
+          Worn ${item.count} / ${item.limit}
+        </div>
 
         ${
           item.count >= item.limit
-          ? '<br><span style="color:red;font-weight:bold;">🧼 Time to Wash</span>'
+          ? '<div style="color:#ff3b30;font-weight:600;margin-top:5px;">🧼 Time to Wash</div>'
           : ''
         }
 
-        <br><br>
-
-        <button onclick="wear(${index})">Wear +1</button>
-
-        <button onclick="wash(${index})">Washed</button>
+        <div style="margin-top:10px;">
+          <button onclick="wear(${index})">Wear +1</button>
+          <button onclick="wash(${index})" style="background:#34c759;">Washed</button>
+        </div>
 
       </div>
     `;
@@ -123,10 +153,10 @@ function render(){
   document.getElementById("list").innerHTML = html;
 
   save();
-
   renderLog();
 }
 
+/* ===== add cloth ===== */
 function addCloth(){
 
   const name = prompt("Cloth name");
@@ -134,9 +164,8 @@ function addCloth(){
 
   const limit = defaultLimit;
 
-  // 📸 图片处理
   const fileInput = document.getElementById("photoInput");
-  const file = fileInput.files[0];
+  const file = fileInput ? fileInput.files[0] : null;
 
   if(file){
 
@@ -145,12 +174,11 @@ function addCloth(){
     reader.onload = function(e){
 
       clothes.push({
-        name: name,
-        count: 0,
-        limit: limit,
-        status: "clean",
-        type: "normal",
-        image: e.target.result
+        name,
+        count:0,
+        limit,
+        status:"clean",
+        image:e.target.result
       });
 
       render();
@@ -158,32 +186,32 @@ function addCloth(){
 
     reader.readAsDataURL(file);
 
-  } else {
+  }else{
 
     clothes.push({
-      name: name,
-      count: 0,
-      limit: limit,
-      status: "clean",
-      type: "normal",
-      image: ""
+      name,
+      count:0,
+      limit,
+      status:"clean",
+      image:""
     });
 
     render();
   }
 }
 
+/* ===== wear ===== */
 function wear(index){
 
   clothes[index].count++;
 
-  if (clothes[index].count >= clothes[index].limit) {
+  if(clothes[index].count >= clothes[index].limit){
     clothes[index].status = "needs wash";
   }
 
   let today = new Date().toISOString().split("T")[0];
 
-  if (!stateLogs[today]) {
+  if(!stateLogs[today]){
     stateLogs[today] = [];
   }
 
@@ -192,6 +220,7 @@ function wear(index){
   render();
 }
 
+/* ===== wash ===== */
 function wash(index){
 
   clothes[index].count = 0;
@@ -200,14 +229,40 @@ function wash(index){
   render();
 }
 
+/* ===== log UI ===== */
 function renderLog(){
 
-  let today = new Date().toISOString().split("T")[0];
+  let html = "";
 
-  let list = stateLogs[today] || [];
+  let dates = Object.keys(stateLogs).sort().reverse();
 
-  document.getElementById("log").innerHTML =
-    list.map(item => `<div>👕 ${item}</div>`).join("");
+  dates.forEach(date => {
+
+    let items = stateLogs[date];
+
+    html += `
+      <div class="log-card" onclick="toggle('${date}')">
+
+        <b>📅 ${date}</b>
+        <div id="log-${date}" style="display:none;margin-top:8px;">
+          ${items.map(i => `<div>👕 ${i}</div>`).join("")}
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("log").innerHTML = html;
+}
+
+/* ===== toggle log ===== */
+function toggle(date){
+
+  let el = document.getElementById("log-" + date);
+
+  el.style.display = el.style.display === "none"
+    ? "block"
+    : "none";
 }
 
 render();
