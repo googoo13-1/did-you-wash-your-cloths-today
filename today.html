@@ -47,12 +47,21 @@
       color:#333;
       font-weight:600;
     }
+
+    img{
+      width:100%;
+      border-radius:10px;
+      margin-bottom:8px;
+    }
   </style>
 </head>
 
 <body>
 
 <h2>🧺 Today</h2>
+
+<!-- 📸 图片上传 -->
+<input type="file" accept="image/*" id="photoInput">
 
 <button onclick="addCloth()">+ Add Clothes</button>
 
@@ -69,7 +78,6 @@ JSON.parse(localStorage.getItem("clothes")) || [];
 let stateLogs =
 JSON.parse(localStorage.getItem("logs")) || {};
 
-// ⭐ FIX + PART 3：默认设置
 let defaultLimit =
 Number(localStorage.getItem("default_limit")) || 3;
 
@@ -86,6 +94,8 @@ function render(){
 
     html += `
       <div class="card">
+
+        ${item.image ? `<img src="${item.image}">` : ""}
 
         <b>${item.name}</b>
         ${item.status === "needs wash" ? " 🧼" : ""}
@@ -122,16 +132,45 @@ function addCloth(){
   const name = prompt("Cloth name");
   if(!name) return;
 
-  // ⭐ PART 3：使用 settings 默认值
-  clothes.push({
-    name: name,
-    count: 0,
-    limit: defaultLimit,
-    status: "clean",
-    type: "normal"
-  });
+  const limit = defaultLimit;
 
-  render();
+  // 📸 图片处理
+  const fileInput = document.getElementById("photoInput");
+  const file = fileInput.files[0];
+
+  if(file){
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+      clothes.push({
+        name: name,
+        count: 0,
+        limit: limit,
+        status: "clean",
+        type: "normal",
+        image: e.target.result
+      });
+
+      render();
+    };
+
+    reader.readAsDataURL(file);
+
+  } else {
+
+    clothes.push({
+      name: name,
+      count: 0,
+      limit: limit,
+      status: "clean",
+      type: "normal",
+      image: ""
+    });
+
+    render();
+  }
 }
 
 function wear(index){
@@ -142,7 +181,6 @@ function wear(index){
     clothes[index].status = "needs wash";
   }
 
-  // ⭐ LOG SYSTEM
   let today = new Date().toISOString().split("T")[0];
 
   if (!stateLogs[today]) {
