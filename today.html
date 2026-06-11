@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Today</title>
+
   <style>
     body {
       font-family: system-ui;
@@ -12,11 +13,12 @@
       padding: 20px;
       background: #f7f8fa;
     }
+
     .nav a{
-  text-decoration:none;
-  color:#333;
-  font-weight:600;
-}
+      text-decoration:none;
+      color:#333;
+      font-weight:600;
+    }
 
     .card {
       background: white;
@@ -31,6 +33,7 @@
       border-radius: 8px;
       background: #007AFF;
       color: white;
+      margin-right: 5px;
     }
 
     .nav {
@@ -77,17 +80,21 @@ function render(){
 
    html += `
    <div style="
-   background:white;
-   padding:15px;
-   margin-top:10px;
-   border-radius:10px;
+     background:white;
+     padding:15px;
+     margin-top:10px;
+     border-radius:10px;
    ">
 
-<b>${item.name}</b><br>
+<b>${item.name}</b>
+${item.status === "needs wash" ? " 🧼" : ""}
+
+<br>
 
 Worn ${item.count} / ${item.limit} times
 
-${item.count >= item.limit
+${
+ item.count >= item.limit
  ? '<br><span style="color:red;font-weight:bold;">🧼 Time to Wash</span>'
  : ''
 }
@@ -95,56 +102,56 @@ ${item.count >= item.limit
 <br><br>
 
    <button onclick="wear(${index})">
-   Wear +1
+     Wear +1
    </button>
 
    <button onclick="wash(${index})">
-   Washed
+     Washed
    </button>
 
    </div>
    `;
-
  });
 
- document.getElementById("list").innerHTML =
- html;
+ document.getElementById("list").innerHTML = html;
 
  save();
-
 }
 
 function addCloth(){
 
- const name =
- prompt("Cloth name");
+ const name = prompt("Cloth name");
 
  if(!name) return;
 
-clothes.push({
+ clothes.push({
    name:name,
    count:0,
-   limit:3
-});
+   limit:3,
+   status: "clean"
+ });
 
  render();
-  
 }
 
 function wear(index){
 
  clothes[index].count++;
 
- render();
+ // ⭐ NEW LOGIC
+ if (clothes[index].count >= clothes[index].limit) {
+   clothes[index].status = "needs wash";
+ }
 
+ render();
 }
 
 function wash(index){
 
- clothes[index].count=0;
+ clothes[index].count = 0;
+ clothes[index].status = "clean";
 
  render();
-
 }
 
 render();
