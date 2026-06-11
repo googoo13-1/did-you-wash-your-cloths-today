@@ -69,6 +69,10 @@ JSON.parse(localStorage.getItem("clothes")) || [];
 let stateLogs =
 JSON.parse(localStorage.getItem("logs")) || {};
 
+// ⭐ FIX + PART 3：默认设置
+let defaultLimit =
+Number(localStorage.getItem("default_limit")) || 3;
+
 function save(){
   localStorage.setItem("clothes", JSON.stringify(clothes));
   localStorage.setItem("logs", JSON.stringify(stateLogs));
@@ -118,12 +122,11 @@ function addCloth(){
   const name = prompt("Cloth name");
   if(!name) return;
 
-  const limit = prompt("Wash limit (e.g. 3, 5, 10)");
-
+  // ⭐ PART 3：使用 settings 默认值
   clothes.push({
     name: name,
     count: 0,
-    limit: Number(limit) || 3,
+    limit: defaultLimit,
     status: "clean",
     type: "normal"
   });
