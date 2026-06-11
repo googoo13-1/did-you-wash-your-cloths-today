@@ -46,53 +46,98 @@
 
 <h2>🧺 Today</h2>
 
+<button onclick="addCloth()">
++ Add Clothes
+</button>
+
 <div id="list"></div>
 
-<button onclick="addCloth()">+ Add Cloth</button>
-
-<div class="nav">
-  <a href="today.html">Today</a>
-  <a href="wardrobe.html">Wardrobe</a>
-  <a href="settings.html">Settings</a>
-</div>
-
 <script>
-let clothes = JSON.parse(localStorage.getItem("clothes")) || [
-  { name: "Blue Hoodie", count: 3 },
-  { name: "White Tee", count: 2 }
-];
 
-function render() {
-  let html = "";
+let clothes =
+JSON.parse(localStorage.getItem("clothes")) || [];
 
-  clothes.forEach((c, i) => {
-    html += `
-      <div class="card">
-        <b>${c.name}</b><br>
-        Worn ${c.count} times<br><br>
-        <button onclick="wash(${i})">Washed</button>
-      </div>
-    `;
-  });
-
-  document.getElementById("list").innerHTML = html;
-  localStorage.setItem("clothes", JSON.stringify(clothes));
+function save(){
+ localStorage.setItem(
+   "clothes",
+   JSON.stringify(clothes)
+ );
 }
 
-function wash(i) {
-  clothes[i].count = 0;
-  render();
+function render(){
+
+ let html="";
+
+ clothes.forEach((item,index)=>{
+
+   html += `
+   <div style="
+   background:white;
+   padding:15px;
+   margin-top:10px;
+   border-radius:10px;
+   ">
+
+   <b>${item.name}</b><br>
+
+   Worn ${item.count} times
+
+   <br><br>
+
+   <button onclick="wear(${index})">
+   Wear +1
+   </button>
+
+   <button onclick="wash(${index})">
+   Washed
+   </button>
+
+   </div>
+   `;
+
+ });
+
+ document.getElementById("list").innerHTML =
+ html;
+
+ save();
+
 }
 
-function addCloth() {
-  let name = prompt("Cloth name?");
-  if (name) {
-    clothes.push({ name, count: 0 });
-    render();
-  }
+function addCloth(){
+
+ const name =
+ prompt("Cloth name");
+
+ if(!name) return;
+
+ clothes.push({
+   name:name,
+   count:0
+ });
+
+ render();
+
+}
+
+function wear(index){
+
+ clothes[index].count++;
+
+ render();
+
+}
+
+function wash(index){
+
+ clothes[index].count=0;
+
+ render();
+
 }
 
 render();
+
 </script>
 
 </body>
