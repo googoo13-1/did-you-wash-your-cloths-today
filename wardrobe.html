@@ -7,31 +7,52 @@
 
 <style>
 body{
-font-family:system-ui;
-max-width:420px;
-margin:auto;
-padding:20px;
-background:#f7f8fa;
+  font-family:system-ui;
+  max-width:420px;
+  margin:auto;
+  padding:20px;
+  background:#f7f8fa;
 }
 
 .card{
-background:white;
-padding:15px;
-border-radius:10px;
-margin-bottom:10px;
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
 }
 
-button{
-padding:6px 10px;
-margin-top:5px;
+.bar{
+  height:6px;
+  background:#eee;
+  border-radius:5px;
+  overflow:hidden;
+  margin:8px 0;
 }
+
+.fill{
+  height:6px;
+  background:#007AFF;
+}
+
+.badge{
+  font-size:12px;
+  padding:3px 8px;
+  border-radius:999px;
+  display:inline-block;
+  margin-top:5px;
+}
+
+.high{ background:#ffdddd; color:#c00; }
+.mid{ background:#fff3cd; color:#8a6d00; }
+.low{ background:#e6f7ff; color:#0077aa; }
+
 </style>
 
 </head>
 
 <body>
 
-<h2>👕 My Wardrobe</h2>
+<h2>👕 Wardrobe</h2>
 
 <div id="list"></div>
 
@@ -39,58 +60,52 @@ margin-top:5px;
 
 <script>
 
-let clothes =
+let state =
 JSON.parse(localStorage.getItem("clothes")) || [];
-
-function save(){
-localStorage.setItem(
-"clothes",
-JSON.stringify(clothes)
-);
-}
 
 function render(){
 
-let html="";
+let html = "";
 
-clothes.forEach((item,index)=>{
+state.forEach((item)=>{
 
-html += `
-<div class="card">
+  let percent = Math.min(
+    100,
+    (item.count / item.limit) * 100
+  );
 
-<b>${item.name}</b>
+  // usage level
+  let usage = "low";
+  if(item.count >= item.limit){
+    usage = "high";
+  } else if(item.count >= item.limit/2){
+    usage = "mid";
+  }
 
-<br>
+  html += `
+    <div class="card">
 
-Worn ${item.count}/${item.limit}
+      <b>${item.name}</b>
 
-<br><br>
+      ${item.status === "needs wash" ? " 🧼" : ""}
 
-<button onclick="deleteCloth(${index})">
-Delete
-</button>
+      <div class="bar">
+        <div class="fill" style="width:${percent}%"></div>
+      </div>
 
-</div>
-`;
+      <div>
+        Worn: ${item.count} / ${item.limit}
+      </div>
 
+      <span class="badge ${usage}">
+        ${usage.toUpperCase()} USE
+      </span>
+
+    </div>
+  `;
 });
 
-document.getElementById("list").innerHTML =
-html;
-
-}
-
-function deleteCloth(index){
-
-if(confirm("Delete this cloth?")){
-
-clothes.splice(index,1);
-
-save();
-
-render();
-
-}
+document.getElementById("list").innerHTML = html;
 
 }
 
