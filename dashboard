@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+
+<style>
+body{
+  font-family:system-ui;
+  max-width:420px;
+  margin:auto;
+  padding:20px;
+  background:#f7f8fa;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.big{
+  font-size:24px;
+  font-weight:bold;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin:8px 0;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📊 Dashboard</h2>
+
+<div id="app"></div>
+
+<a href="today.html">← Back</a>
+
+<script>
+
+let clothes =
+JSON.parse(localStorage.getItem("clothes")) || [];
+
+let logs =
+JSON.parse(localStorage.getItem("logs")) || {};
+
+function getToday(){
+  return new Date().toISOString().split("T")[0];
+}
+
+function render(){
+
+  let total = clothes.length;
+
+  let needsWash = clothes.filter(
+    c => c.count >= c.limit
+  ).length;
+
+  let today = getToday();
+
+  let todayCount =
+    logs[today] ? logs[today].length : 0;
+
+  // most worn
+  let mostWorn = clothes
+    .slice()
+    .sort((a,b)=>b.count-a.count)[0];
+
+  let html = `
+    <div class="card">
+      <div class="row">
+        <div>Total Clothes</div>
+        <div class="big">${total}</div>
+      </div>
+
+      <div class="row">
+        <div>Today Wears</div>
+        <div class="big">${todayCount}</div>
+      </div>
+
+      <div class="row">
+        <div>Needs Wash</div>
+        <div class="big">${needsWash}</div>
+      </div>
+
+      <div class="row">
+        <div>Most Worn</div>
+        <div class="big">
+          ${mostWorn ? mostWorn.name : "-"}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("app").innerHTML = html;
+}
+
+render();
+
+</script>
+
+</body>
+</html>
