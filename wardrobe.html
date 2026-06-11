@@ -1,17 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wardrobe</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wardrobe</title>
+
+<style>
+body{
+font-family:system-ui;
+max-width:420px;
+margin:auto;
+padding:20px;
+background:#f7f8fa;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+button{
+padding:6px 10px;
+margin-top:5px;
+}
+</style>
+
 </head>
+
 <body>
 
-<h2>👕 我的衣柜</h2>
+<h2>👕 My Wardrobe</h2>
 
-<p>这里以后会放你的衣服列表</p>
+<div id="list"></div>
 
-<a href="today.html">← 回Today</a>
+<a href="today.html">← Today</a>
+
+<script>
+
+let clothes =
+JSON.parse(localStorage.getItem("clothes")) || [];
+
+function save(){
+localStorage.setItem(
+"clothes",
+JSON.stringify(clothes)
+);
+}
+
+function render(){
+
+let html="";
+
+clothes.forEach((item,index)=>{
+
+html += `
+<div class="card">
+
+<b>${item.name}</b>
+
+<br>
+
+Worn ${item.count}/${item.limit}
+
+<br><br>
+
+<button onclick="deleteCloth(${index})">
+Delete
+</button>
+
+</div>
+`;
+
+});
+
+document.getElementById("list").innerHTML =
+html;
+
+}
+
+function deleteCloth(index){
+
+if(confirm("Delete this cloth?")){
+
+clothes.splice(index,1);
+
+save();
+
+render();
+
+}
+
+}
+
+render();
+
+</script>
 
 </body>
 </html>
