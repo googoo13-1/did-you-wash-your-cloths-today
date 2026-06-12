@@ -14,33 +14,64 @@ body{
   background:#f6f7fb;
 }
 
+/* ===== 卡片网格 ===== */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
 .card{
   background:white;
-  padding:14px;
+  padding:10px;
   border-radius:14px;
-  margin-top:12px;
   box-shadow:0 4px 12px rgba(0,0,0,0.05);
+  text-align:center;
 }
 
-img{
+.card img{
   width:100%;
+  height:180px;
+  object-fit:cover;
   border-radius:12px;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
+/* ===== 按钮 ===== */
 button{
-  padding:8px 10px;
+  padding:6px 10px;
   border:none;
-  border-radius:10px;
+  border-radius:8px;
   background:#007AFF;
   color:white;
-  margin-right:6px;
+  margin:3px 2px;
+  font-size:13px;
 }
 
 button.delete{
   background:#ff3b30;
 }
 
+button.wash{
+  background:#34c759;
+}
+
+/* ===== Log 卡片 ===== */
+.log-card{
+  background:white;
+  padding:12px;
+  border-radius:12px;
+  margin-top:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);
+  cursor:pointer;
+}
+
+.small{
+  font-size:12px;
+  color:#666;
+}
+
+/* ===== Nav ===== */
 .nav{
   position:fixed;
   bottom:0;
@@ -59,18 +90,6 @@ button.delete{
   color:#333;
 }
 
-.log-card{
-  background:white;
-  padding:12px;
-  border-radius:12px;
-  margin-top:10px;
-}
-
-.small{
-  font-size:12px;
-  color:#666;
-}
-
 </style>
 </head>
 
@@ -82,21 +101,16 @@ button.delete{
 
 <button onclick="addCloth()">+ Add Clothes</button>
 
-<div id="list"></div>
+<!-- 改成网格显示 -->
+<div id="list" class="grid"></div>
 
 <h3>📅 Log</h3>
 <div id="log"></div>
 
 <script>
-
-let clothes =
-JSON.parse(localStorage.getItem("clothes")) || [];
-
-let logs =
-JSON.parse(localStorage.getItem("logs")) || {};
-
-let defaultLimit =
-Number(localStorage.getItem("default_limit")) || 3;
+let clothes = JSON.parse(localStorage.getItem("clothes")) || [];
+let logs = JSON.parse(localStorage.getItem("logs")) || {};
+let defaultLimit = Number(localStorage.getItem("default_limit")) || 3;
 
 function save(){
   localStorage.setItem("clothes", JSON.stringify(clothes));
@@ -104,73 +118,84 @@ function save(){
 }
 
 /* ======================
-   RENDER CLOTHES
+   RENDER CLOTHES (GRID)
 ====================== */
 function render(){
+  const container = document.getElementById("list");
+  container.innerHTML = "";
 
-  let html = "";
+  clothes.forEach((item,index)=>{
+    const card = document.createElement("div");
+    card.className = "card";
 
-  clothes.forEach((item, index)=>{
+    if(item.image){
+      const img = document.createElement("img");
+      img.src = item.image;
+      card.appendChild(img);
+    }
 
-    html += `
-      <div class="card">
+    const name = document.createElement("b");
+    name.innerText = item.name;
+    card.appendChild(name);
 
-        ${item.image ? `<img src="${item.image}">` : ""}
+    const status = document.createElement("div");
+    status.className = "small";
+    status.innerText = `Worn ${item.count} / ${item.limit}`;
+    card.appendChild(status);
 
-        <b>${item.name}</b>
+    if(item.count >= item.limit){
+      const washNote = document.createElement("div");
+      washNote.style.color="#ff3b30";
+      washNote.style.fontWeight="600";
+      washNote.innerText="🧼 Time to Wash";
+      card.appendChild(washNote);
+    }
 
-        ${item.status === "needs wash" ? " 🧼" : ""}
+    // 按钮
+    const btnContainer = document.createElement("div");
 
-        <div class="small">
-          Worn ${item.count} / ${item.limit}
-        </div>
+    const wearBtn = document.createElement("button");
+    wearBtn.innerText="Wear +1";
+    wearBtn.onclick = ()=>{ wear(index); };
+    btnContainer.appendChild(wearBtn);
 
-        ${
-          item.count >= item.limit
-          ? '<div style="color:#ff3b30;font-weight:600;">🧼 Time to Wash</div>'
-          : ''
-        }
+    const washBtn = document.createElement("button");
+    washBtn.innerText="Washed";
+    washBtn.className="wash";
+    washBtn.onclick = ()=>{ wash(index); };
+    btnContainer.appendChild(washBtn);
 
-        <div style="margin-top:10px;">
+    const delBtn = document.createElement("button");
+    delBtn.innerText="Delete";
+    delBtn.className="delete";
+    delBtn.onclick = ()=>{ deleteCloth(index); };
+    btnContainer.appendChild(delBtn);
 
-          <button onclick="wear(${index})">Wear +1</button>
-          <button onclick="wash(${index})" style="background:#34c759;">Washed</button>
+    card.appendChild(btnContainer);
 
-          <button class="delete" onclick="deleteCloth(${index})">Delete</button>
-
-        </div>
-
-      </div>
-    `;
+    container.appendChild(card);
   });
 
-  document.getElementById("list").innerHTML = html;
-
-  save();
   renderLog();
+  save();
 }
 
 /* ======================
    ADD CLOTH
 ====================== */
 function addCloth(){
-
   const name = prompt("Cloth name");
   if(!name) return;
 
   const limit = prompt("Wash limit (or leave empty for default)");
-
   const finalLimit = Number(limit) || defaultLimit;
 
   const fileInput = document.getElementById("photoInput");
   const file = fileInput.files[0];
 
   if(file){
-
     const reader = new FileReader();
-
     reader.onload = function(e){
-
       clothes.push({
         name,
         count:0,
@@ -178,14 +203,10 @@ function addCloth(){
         status:"clean",
         image:e.target.result
       });
-
       render();
     };
-
     reader.readAsDataURL(file);
-
-  } else {
-
+  }else{
     clothes.push({
       name,
       count:0,
@@ -193,7 +214,6 @@ function addCloth(){
       status:"clean",
       image:""
     });
-
     render();
   }
 }
@@ -202,21 +222,13 @@ function addCloth(){
    WEAR
 ====================== */
 function wear(index){
-
   clothes[index].count++;
-
   if(clothes[index].count >= clothes[index].limit){
-    clothes[index].status = "needs wash";
+    clothes[index].status="needs wash";
   }
-
-  let today = new Date().toISOString().split("T")[0];
-
-  if(!logs[today]){
-    logs[today] = [];
-  }
-
+  const today = new Date().toISOString().split("T")[0];
+  if(!logs[today]) logs[today]=[];
   logs[today].push(clothes[index].name);
-
   render();
 }
 
@@ -224,22 +236,17 @@ function wear(index){
    WASH
 ====================== */
 function wash(index){
-
-  clothes[index].count = 0;
-  clothes[index].status = "clean";
-
+  clothes[index].count=0;
+  clothes[index].status="clean";
   render();
 }
 
 /* ======================
-   DELETE (NEW)
+   DELETE
 ====================== */
 function deleteCloth(index){
-
   if(confirm("Delete this item?")){
-
     clothes.splice(index,1);
-
     render();
   }
 }
@@ -248,42 +255,28 @@ function deleteCloth(index){
    LOG UI
 ====================== */
 function renderLog(){
-
   let html = "";
-
-  let dates = Object.keys(logs).sort().reverse();
-
+  const dates = Object.keys(logs).sort().reverse();
   dates.forEach(date=>{
-
-    let items = logs[date];
-
+    const items = logs[date];
     html += `
       <div class="log-card" onclick="toggle('${date}')">
-
         <b>📅 ${date}</b>
-
         <div id="log-${date}" style="display:none;margin-top:8px;">
           ${items.map(i=>`<div>👕 ${i}</div>`).join("")}
         </div>
-
       </div>
     `;
   });
-
   document.getElementById("log").innerHTML = html;
 }
 
-/* toggle */
 function toggle(date){
-
-  let el = document.getElementById("log-"+date);
-
-  el.style.display =
-    el.style.display === "none" ? "block" : "none";
+  const el = document.getElementById("log-"+date);
+  el.style.display = el.style.display==="none"?"block":"none";
 }
 
 render();
-
 </script>
 
 <div class="nav">
